@@ -1174,20 +1174,6 @@ tr:last-child td {
     font-size: 0.9rem;
 }
 
-@media (max-width: 768px) {
-    .table-wrapper th,
-    .parts-table th {
-        white-space: normal;
-    }
-    .table-wrapper th,
-    .table-wrapper td,
-    .parts-table th,
-    .parts-table td {
-        padding: 12px 14px;
-        font-size: 0.9rem;
-    }
-}
-
 /* --- OPTYMALIZACJA WYDRUKU A4 --- */
 @media print {
     @page {
