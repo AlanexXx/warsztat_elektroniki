@@ -14,8 +14,8 @@
     --accent-surface-hover: #d95f12;
     --accent-surface-rgb: 244, 116, 30;
     --accent-top: #ff8c44;
-    --button-primary-text: #24160f;
-    --badge-type-text: #24160f;
+    --button-primary-text: #111111;
+    --badge-type-text: #111111;
     --success-bg: #d8efdf;
     --success-color: #226d3e;
     --error-bg: #f6d8d5;
@@ -70,8 +70,8 @@
     --accent-surface-hover: #d95f12;
     --accent-surface-rgb: 255, 122, 61;
     --accent-top: #ff975f;
-    --button-primary-text: #1b100a;
-    --badge-type-text: #1b100a;
+    --button-primary-text: #111111;
+    --badge-type-text: #111111;
     --success-bg: rgba(34, 109, 62, 0.28);
     --success-color: #74d497;
     --error-bg: rgba(180, 58, 46, 0.28);
@@ -509,6 +509,7 @@ th {
     text-transform: uppercase;
     font-size: 0.74rem;
     letter-spacing: 0.08em;
+    white-space: nowrap;
 }
 tbody tr {
     transition: var(--transition);
@@ -577,9 +578,34 @@ tr:last-child td {
     content: "";
     width: 8px;
     height: 8px;
-    border-radius: 50%;
     background-color: currentColor;
     flex-shrink: 0;
+}
+.badge-client::before,
+.badge-status-przyjeto::before,
+.test-status-default::before {
+    border-radius: 50%;
+}
+.badge-own::before,
+.badge-status-czeka::before,
+.test-status-partial::before {
+    border-radius: 2px;
+}
+.badge-status-w-trakcie::before {
+    border-radius: 2px;
+    transform: rotate(45deg);
+}
+.badge-status-gotowe::before,
+.test-status-ok::before {
+    width: 10px;
+    border-radius: 999px;
+}
+.badge-status-zamkniete::before,
+.test-status-error::before {
+    width: 10px;
+    height: 3px;
+    margin: 2px 0;
+    border-radius: 999px;
 }
 
 .filter-card {
@@ -1163,6 +1189,13 @@ tr:last-child td {
 .report-test-table th, .report-test-table td {
     padding: 6px 10px;
     font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    th,
+    .parts-table th {
+        white-space: normal;
+    }
 }
 
 /* --- OPTYMALIZACJA WYDRUKU A4 --- */
