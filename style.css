@@ -1175,12 +1175,12 @@ tr:last-child td {
 }
 
 @media (max-width: 768px) {
-    th,
+    .table-wrapper th,
     .parts-table th {
         white-space: normal;
     }
-    th,
-    td,
+    .table-wrapper th,
+    .table-wrapper td,
     .parts-table th,
     .parts-table td {
         padding: 12px 14px;
