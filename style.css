@@ -1179,6 +1179,13 @@ tr:last-child td {
     .parts-table th {
         white-space: normal;
     }
+    th,
+    td,
+    .parts-table th,
+    .parts-table td {
+        padding: 12px 14px;
+        font-size: 0.9rem;
+    }
 }
 
 /* --- OPTYMALIZACJA WYDRUKU A4 --- */
