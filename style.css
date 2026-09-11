@@ -70,8 +70,8 @@
     --accent-surface-hover: #d95f12;
     --accent-surface-rgb: 255, 122, 61;
     --accent-top: #ff975f;
-    --button-primary-text: #24160f;
-    --badge-type-text: #24160f;
+    --button-primary-text: #1b100a;
+    --badge-type-text: #1b100a;
     --success-bg: rgba(34, 109, 62, 0.28);
     --success-color: #74d497;
     --error-bg: rgba(180, 58, 46, 0.28);
@@ -574,13 +574,26 @@ tr:last-child td {
 .test-status-partial::before,
 .test-status-error::before,
 .test-status-ok::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: currentColor;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.9rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
     flex-shrink: 0;
 }
+.badge-client::before { content: "◧"; }
+.badge-own::before { content: "◩"; }
+.badge-status-przyjeto::before { content: "●"; }
+.badge-status-czeka::before,
+.test-status-partial::before { content: "▲"; }
+.badge-status-w-trakcie::before { content: "◆"; }
+.badge-status-gotowe::before,
+.test-status-ok::before { content: "✓"; }
+.badge-status-zamkniete::before,
+.test-status-default::before { content: "■"; }
+.test-status-error::before { content: "!"; }
 
 .filter-card {
     background-color: var(--card-bg);
