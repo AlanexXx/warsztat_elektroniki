@@ -14,7 +14,8 @@
     --accent-surface-hover: #d95f12;
     --accent-surface-rgb: 244, 116, 30;
     --accent-top: #ff8c44;
-    --accent-ink: #24160f;
+    --button-primary-text: #24160f;
+    --badge-type-text: #24160f;
     --success-bg: #d8efdf;
     --success-color: #226d3e;
     --error-bg: #f6d8d5;
@@ -65,11 +66,12 @@
     --accent-color: #ff7a3d;
     --accent-hover: #ff965f;
     --accent-rgb: 255, 122, 61;
-    --accent-surface: #a84712;
-    --accent-surface-hover: #8f3c10;
-    --accent-surface-rgb: 168, 71, 18;
-    --accent-top: #c04f12;
-    --accent-ink: #fffaf5;
+    --accent-surface: #ff7a3d;
+    --accent-surface-hover: #d95f12;
+    --accent-surface-rgb: 255, 122, 61;
+    --accent-top: #ff975f;
+    --button-primary-text: #24160f;
+    --badge-type-text: #24160f;
     --success-bg: rgba(34, 109, 62, 0.28);
     --success-color: #74d497;
     --error-bg: rgba(180, 58, 46, 0.28);
@@ -299,7 +301,7 @@ textarea {
 .btn-primary {
     background-color: var(--accent-surface);
     background-image: linear-gradient(180deg, var(--accent-top) 0%, var(--accent-surface) 100%);
-    color: var(--accent-ink);
+    color: var(--button-primary-text);
     border: 1px solid rgba(var(--accent-surface-rgb), 0.24);
     box-shadow: 0 10px 18px -12px rgba(var(--accent-surface-rgb), 0.6), 0 3px 8px -5px rgba(var(--accent-surface-rgb), 0.45);
 }
@@ -559,7 +561,7 @@ tr:last-child td {
 .badge-status-w-trakcie { background-color: var(--badge-progress-bg); color: var(--badge-progress-color); }
 .badge-status-gotowe { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); }
 .badge-status-zamkniete { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); }
-.badge-type { background-color: var(--accent-surface); background-image: linear-gradient(180deg, var(--accent-top) 0%, var(--accent-surface) 100%); color: var(--accent-ink); padding: 6px 14px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; }
+.badge-type { background-color: var(--accent-surface); background-image: linear-gradient(180deg, var(--accent-top) 0%, var(--accent-surface) 100%); color: var(--badge-type-text); padding: 6px 14px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; }
 
 .badge-client::before,
 .badge-own::before,
