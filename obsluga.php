@@ -26,7 +26,8 @@ if ($id === null || $id === false) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $action = $_POST['action'] ?? '';
-    $isAjax = isset($_POST['ajax']) && $_POST['ajax'] === '1';
+    $isAjax = (isset($_POST['ajax']) && $_POST['ajax'] === '1')
+        || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest');
 
     if (!csrf_verify()) {
         if ($isAjax) {
