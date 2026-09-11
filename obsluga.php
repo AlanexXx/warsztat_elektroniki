@@ -13,9 +13,12 @@ function dodajWpisHistorii($pdo, $zlecenieId, $typZmiany, $opis) {
 }
 
 $message = '';
-$id = $_GET['id'] ?? $_POST['id'] ?? null;
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if ($id === null || $id === false) {
+    $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+}
 
-if (!$id) {
+if ($id === null || $id === false) {
     die("<div class='die-message'>Brak ID zgłoszenia. Wróć do <a href='lista.php'>listy</a>.</div>");
 }
 
@@ -23,7 +26,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $action = $_POST['action'] ?? '';
     $isAjax = isset($_POST['ajax']) || !empty($_SERVER['HTTP_X_REQUESTED_WITH']);
 
-    try {
+    if (!csrf_verify()) {
+        if ($isAjax) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Nieprawidłowy token CSRF']);
+            exit;
+        }
+
+        $message = "<div class='alert error'>❌ Nieprawidłowe żądanie. Odśwież stronę i spróbuj ponownie.</div>";
+    } else {
+        try {
         $stmt_chk = $pdo->prepare("SELECT orderType FROM zlecenia WHERE id = :id");
         $stmt_chk->execute([':id' => $id]);
         $row_chk = $stmt_chk->fetch(PDO::FETCH_ASSOC);
@@ -177,6 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit;
         }
         $message = "<div class='alert error'>❌ Błąd bazy danych: " . $e->getMessage() . "</div>";
+        }
     }
 }
 
@@ -200,18 +214,18 @@ try {
     die("Błąd odczytu bazy danych: " . $e->getMessage());
 }
 
-$mapa_ilosci = array(
+$mapa_ilosci = [
     'Laptop / Komputer' => 13,
     'Smartfon / Tablet' => 14,
     'Audio / Wzmacniacz' => 5,
     'Konsola' => 10,
     'Inne' => 3
-);
+];
 $kat = isset($dane['deviceCategory']) ? $dane['deviceCategory'] : 'Inne';
 $wszystkichTestow = isset($mapa_ilosci[$kat]) ? $mapa_ilosci[$kat] : 3;
 
 $stmt_testy = $pdo->prepare("SELECT COUNT(CASE WHEN status != 'nie_sprawdzono' THEN 1 END) as sprawdzone, COUNT(CASE WHEN status = 'uszkodzone' THEN 1 END) as uszkodzone FROM zlecenie_testy WHERE zlecenie_id = :id");
-$stmt_testy->execute(array(':id' => $id));
+$stmt_testy->execute([':id' => $id]);
 $statyTestow = $stmt_testy->fetch(PDO::FETCH_ASSOC);
 
 $sprawdzone = $statyTestow['sprawdzone'] ?? 0;
@@ -282,6 +296,7 @@ require_once 'header.php';
         <form method="POST" action="">
             <input type="hidden" name="id" value="<?php echo htmlspecialchars($dane['id']); ?>">
             <input type="hidden" name="action" value="section1">
+            <?= csrf_field(); ?>
             <div class="form-grid">
                 <?php if ($dane['orderType'] === 'client'): ?>
                     <div class="form-group"><label>Klient / Firma</label><input type="text" name="clientName" value="<?php echo htmlspecialchars($dane['clientName'] ?? ''); ?>"></div>
@@ -325,6 +340,7 @@ require_once 'header.php';
         <form method="POST" action="">
             <input type="hidden" name="id" value="<?php echo htmlspecialchars($dane['id']); ?>">
             <input type="hidden" name="action" value="section2">
+            <?= csrf_field(); ?>
             <div class="form-grid">
                 <div class="form-group">
                     <label>Kategoria *</label>
@@ -389,6 +405,7 @@ require_once 'header.php';
     <form method="POST" action="" id="statusWorkForm">
         <input type="hidden" name="id" value="<?php echo htmlspecialchars($dane['id']); ?>">
         <input type="hidden" name="action" value="section3">
+        <?= csrf_field(); ?>
         
         <div class="management-section">
             <label for="initialStatus" class="management-label">STATUS NAPRAWY:</label>
@@ -426,7 +443,7 @@ require_once 'header.php';
                                     <td><?php echo htmlspecialchars($part['nazwa']); ?></td>
                                     <td><b class="part-price-bold"><?php echo number_format($part['cena'], 2, ',', ' '); ?> zł</b></td>
                                     <td class="td-right">
-                                        <button type="button" onclick="usunCzesci(<?php echo $part['id']; ?>, <?php echo $id; ?>)" class="btn-delete-part">Usuń</button>
+                                        <button type="button" onclick="usunCzesci(<?php echo (int) $part['id']; ?>, <?php echo (int) $id; ?>)" class="btn-delete-part">Usuń</button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -452,7 +469,7 @@ require_once 'header.php';
                 <input type="number" step="0.01" id="ajaxPartPrice" placeholder="0.00" class="add-part-input">
             </div>
             <div>
-                <button type="button" onclick="dodajCzesc(<?php echo $id; ?>)" class="btn btn-secondary btn-add-part">+ Dodaj</button>
+                <button type="button" onclick="dodajCzesc(<?php echo (int) $id; ?>)" class="btn btn-secondary btn-add-part">+ Dodaj</button>
             </div>
         </div>
 
@@ -504,6 +521,7 @@ require_once 'header.php';
             <form method="POST" action="">
                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($dane['id']); ?>">
                 <input type="hidden" name="action" value="section_sale">
+                <?= csrf_field(); ?>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Cena sprzedaży (zł)</label>

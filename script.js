@@ -18,6 +18,10 @@ if (themeToggleBtn) {
     });
 }
 
+function appendCsrfToken(formData) {
+    formData.append('csrf_token', typeof CSRF_TOKEN !== 'undefined' ? CSRF_TOKEN : '');
+}
+
 // --- DROPDOWNY (lista.php) ---
 window.toggleDropdown = function(menuId) {
     const menu = document.getElementById(menuId);
@@ -126,8 +130,8 @@ function initPattern(gridId, inputId, clearBtnId) {
     }
 }
 
-initPattern('patternGrid', 'patternCodeInput', 'clearPatternBtn');       // Dla dodaj.php
-initPattern('editPatternGrid', 'editPatternCodeInput', 'editClearPatternBtn'); // Dla obsluga.php
+initPattern('patternGrid', 'patternCodeInput', 'clearPatternBtn');
+initPattern('editPatternGrid', 'editPatternCodeInput', 'editClearPatternBtn');
 
 // --- EDYCJA W OBSLUGA.PHP ---
 window.toggleEdit = function(sectionId) {
@@ -203,6 +207,7 @@ window.dodajCzesc = function(zlecenieId) {
     formData.append('part_name', nazwa);
     formData.append('part_price', cena);
     formData.append('ajax', '1');
+    appendCsrfToken(formData);
 
     fetch('obsluga.php?id=' + zlecenieId, {
         method: 'POST',
@@ -215,7 +220,7 @@ window.dodajCzesc = function(zlecenieId) {
             cenaInput.value = '';
             window.odswiezTabeluCzesci(data.parts, data.totalPartsPrice);
         } else {
-            alert('Błąd podczas dodawania części.');
+            alert(data.error || 'Błąd podczas dodawania części.');
         }
     })
     .catch(error => console.error('Błąd:', error));
@@ -228,6 +233,7 @@ window.usunCzesci = function(partId, zlecenieId) {
     formData.append('action', 'delete_part');
     formData.append('part_id', partId);
     formData.append('ajax', '1');
+    appendCsrfToken(formData);
 
     fetch('obsluga.php?id=' + zlecenieId, {
         method: 'POST',
@@ -238,7 +244,7 @@ window.usunCzesci = function(partId, zlecenieId) {
         if (data.success) {
             window.odswiezTabeluCzesci(data.parts, data.totalPartsPrice);
         } else {
-            alert('Błąd podczas usuwania części.');
+            alert(data.error || 'Błąd podczas usuwania części.');
         }
     })
     .catch(error => console.error('Błąd:', error));
@@ -251,6 +257,7 @@ window.zmienStatus = function(selectElement, klucz, zlecenieId) {
     
     formData.append('klucz_testu', klucz);
     formData.append('status', nowyStatus);
+    appendCsrfToken(formData);
 
     fetch('test.php?id=' + zlecenieId, {
         method: 'POST',
@@ -261,6 +268,8 @@ window.zmienStatus = function(selectElement, klucz, zlecenieId) {
         if (data.success) {
             selectElement.style.borderColor = 'var(--success-color)';
             setTimeout(() => selectElement.style.borderColor = '', 600);
+        } else {
+            alert(data.error || 'Błąd podczas zapisu.');
         }
     })
     .catch(error => console.error('Błąd podczas zapisu:', error));

@@ -9,25 +9,30 @@ if (isset($_SESSION['zalogowany']) && $_SESSION['zalogowany'] === true) {
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $login = trim($_POST['login'] ?? '');
-    $haslo = $_POST['haslo'] ?? '';
-
-    if (!empty($login) && !empty($haslo)) {
-        $stmt = $pdo->prepare("SELECT id, login, haslo FROM uzytkownicy WHERE login = :login");
-        $stmt->execute([':login' => $login]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && password_verify($haslo, $user['haslo'])) {
-            $_SESSION['zalogowany'] = true;
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_login'] = $user['login'];
-            header("Location: index.php");
-            exit;
-        } else {
-            $error = "Nieprawidłowy login lub hasło.";
-        }
+    if (!csrf_verify()) {
+        $error = "Nieprawidłowe żądanie. Odśwież stronę i spróbuj ponownie.";
     } else {
-        $error = "Wypełnij wszystkie pola.";
+        $login = trim($_POST['login'] ?? '');
+        $haslo = $_POST['haslo'] ?? '';
+
+        if (!empty($login) && !empty($haslo)) {
+            $stmt = $pdo->prepare("SELECT id, login, haslo FROM uzytkownicy WHERE login = :login");
+            $stmt->execute([':login' => $login]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user && password_verify($haslo, $user['haslo'])) {
+                session_regenerate_id(true);
+                $_SESSION['zalogowany'] = true;
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_login'] = $user['login'];
+                header("Location: index.php");
+                exit;
+            } else {
+                $error = "Nieprawidłowy login lub hasło.";
+            }
+        } else {
+            $error = "Wypełnij wszystkie pola.";
+        }
     }
 }
 ?>
@@ -56,6 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
 
         <form method="POST" action="">
+            <?= csrf_field(); ?>
             <div class="form-group" style="margin-bottom: 15px;">
                 <label>Login</label>
                 <input type="text" name="login" required autofocus>

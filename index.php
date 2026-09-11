@@ -12,8 +12,9 @@ try {
     $sumaAktywnych = $aktywnePrzyjeto + $aktywneCzeka + $aktywneWTrakcie;
 
     $ukonczoneOgolnie = $pdo->query("SELECT COUNT(*) FROM zlecenia WHERE initialStatus IN ('Gotowe', 'Odebrane', 'Sprzedane')")->fetchColumn();
-    $sredniCzasOgolnie = round($pdo->query("SELECT AVG(DATEDIFF(COALESCE(saleDate, admissionDate), admissionDate)) FROM zlecenia WHERE initialStatus IN ('Gotowe', 'Odebrane', 'Sprzedane')")->fetchColumn() ?? 0, 1);
-    
+    $sredniCzasOgolnieRaw = $pdo->query("SELECT AVG(DATEDIFF(COALESCE(saleDate, admissionDate), admissionDate)) FROM zlecenia WHERE initialStatus IN ('Gotowe', 'Odebrane', 'Sprzedane')")->fetchColumn();
+    $sredniCzasOgolnie = round((float) ($sredniCzasOgolnieRaw ?? 0), 1);
+
     $przychodKlientowOgolnie = $pdo->query("SELECT SUM(price) FROM zlecenia WHERE orderType = 'client' AND price > 0")->fetchColumn() ?? 0;
 
     $stmt_wlasne_ogolnie = $pdo->query("

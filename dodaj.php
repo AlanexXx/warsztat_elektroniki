@@ -4,57 +4,61 @@ require_once 'db.php';
 $message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    try {
-        $lockType = $_POST['lockType'] ?? 'Brak';
-        $lockCodeVal = 'Brak';
-        if ($lockType === 'PIN/Hasło') {
-            $lockCodeVal = 'PIN: ' . trim($_POST['lockPinValue'] ?? '');
-        } elseif ($lockType === 'Wzór') {
-            $lockCodeVal = 'Wzór: ' . trim($_POST['patternCode'] ?? '');
+    if (!csrf_verify()) {
+        $message = "<div class='alert error'>❌ Nieprawidłowe żądanie. Odśwież stronę i spróbuj ponownie.</div>";
+    } else {
+        try {
+            $lockType = $_POST['lockType'] ?? 'Brak';
+            $lockCodeVal = 'Brak';
+            if ($lockType === 'PIN/Hasło') {
+                $lockCodeVal = 'PIN: ' . trim($_POST['lockPinValue'] ?? '');
+            } elseif ($lockType === 'Wzór') {
+                $lockCodeVal = 'Wzór: ' . trim($_POST['patternCode'] ?? '');
+            }
+
+            $sql = "INSERT INTO zlecenia (
+                orderType, clientName, clientPhone, clientEmail, price, 
+                purchasePrice, additionalCost, purchaseSource, deviceCategory, 
+                deviceBrandModel, serialNumber, lockCode, accessories, visualCondition, 
+                faultDescription, initialStatus, admissionDate
+            ) VALUES (
+                :orderType, :clientName, :clientPhone, :clientEmail, :price, 
+                :purchasePrice, :additionalCost, :purchaseSource, :deviceCategory, 
+                :deviceBrandModel, :serialNumber, :lockCode, :accessories, :visualCondition, 
+                :faultDescription, :initialStatus, :admissionDate
+            )";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':orderType' => $_POST['orderType'] ?? null,
+                ':clientName' => $_POST['clientName'] ?? null,
+                ':clientPhone' => $_POST['clientPhone'] ?? null,
+                ':clientEmail' => $_POST['clientEmail'] ?? null,
+                ':price' => !empty($_POST['price']) ? $_POST['price'] : null,
+                ':purchasePrice' => !empty($_POST['purchasePrice']) ? $_POST['purchasePrice'] : null,
+                ':additionalCost' => !empty($_POST['additionalCost']) ? $_POST['additionalCost'] : null,
+                ':purchaseSource' => $_POST['purchaseSource'] ?? null,
+                ':deviceCategory' => $_POST['deviceCategory'] ?? null,
+                ':deviceBrandModel' => $_POST['deviceBrandModel'] ?? null,
+                ':serialNumber' => $_POST['serialNumber'] ?? null,
+                ':lockCode' => $lockCodeVal,
+                ':accessories' => $_POST['accessories'] ?? null,
+                ':visualCondition' => $_POST['visualCondition'] ?? null,
+                ':faultDescription' => $_POST['faultDescription'] ?? null,
+                ':initialStatus' => 'Przyjęto',
+                ':admissionDate' => $_POST['admissionDate'] ?? null
+            ]);
+
+            $noweId = $pdo->lastInsertId();
+            $uzytkownik = $_SESSION['user_login'] ?? 'System';
+            $stmtH = $pdo->prepare("INSERT INTO historia_zmian (zlecenie_id, uzytkownik, typ_zmiany, opis) VALUES (:id, :usr, 'Utworzenie', 'Utworzono zlecenie ze statusem Przyjęto')");
+            $stmtH->execute([':id' => $noweId, ':usr' => $uzytkownik]);
+
+            $message = "<div class='alert success'>✅ Zgłoszenie zostało poprawnie zapisane w bazie danych!</div>";
+        } catch(PDOException $e) {
+            $message = "<div class='alert error'>❌ Wystąpił błąd podczas zapisywania danych.</div>";
+            error_log("Błąd dodawania: " . $e->getMessage());
         }
-
-        $sql = "INSERT INTO zlecenia (
-            orderType, clientName, clientPhone, clientEmail, price, 
-            purchasePrice, additionalCost, purchaseSource, deviceCategory, 
-            deviceBrandModel, serialNumber, lockCode, accessories, visualCondition, 
-            faultDescription, initialStatus, admissionDate
-        ) VALUES (
-            :orderType, :clientName, :clientPhone, :clientEmail, :price, 
-            :purchasePrice, :additionalCost, :purchaseSource, :deviceCategory, 
-            :deviceBrandModel, :serialNumber, :lockCode, :accessories, :visualCondition, 
-            :faultDescription, :initialStatus, :admissionDate
-        )";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':orderType' => $_POST['orderType'] ?? null,
-            ':clientName' => $_POST['clientName'] ?? null,
-            ':clientPhone' => $_POST['clientPhone'] ?? null,
-            ':clientEmail' => $_POST['clientEmail'] ?? null,
-            ':price' => !empty($_POST['price']) ? $_POST['price'] : null,
-            ':purchasePrice' => !empty($_POST['purchasePrice']) ? $_POST['purchasePrice'] : null,
-            ':additionalCost' => !empty($_POST['additionalCost']) ? $_POST['additionalCost'] : null,
-            ':purchaseSource' => $_POST['purchaseSource'] ?? null,
-            ':deviceCategory' => $_POST['deviceCategory'] ?? null,
-            ':deviceBrandModel' => $_POST['deviceBrandModel'] ?? null,
-            ':serialNumber' => $_POST['serialNumber'] ?? null,
-            ':lockCode' => $lockCodeVal,
-            ':accessories' => $_POST['accessories'] ?? null,
-            ':visualCondition' => $_POST['visualCondition'] ?? null,
-            ':faultDescription' => $_POST['faultDescription'] ?? null,
-            ':initialStatus' => 'Przyjęto',
-            ':admissionDate' => $_POST['admissionDate'] ?? null
-        ]);
-
-        $noweId = $pdo->lastInsertId();
-        $uzytkownik = $_SESSION['user_login'] ?? 'System';
-        $stmtH = $pdo->prepare("INSERT INTO historia_zmian (zlecenie_id, uzytkownik, typ_zmiany, opis) VALUES (:id, :usr, 'Utworzenie', 'Utworzono zlecenie ze statusem Przyjęto')");
-        $stmtH->execute([':id' => $noweId, ':usr' => $uzytkownik]);
-
-        $message = "<div class='alert success'>✅ Zgłoszenie zostało poprawnie zapisane w bazie danych!</div>";
-    } catch(PDOException $e) {
-        $message = "<div class='alert error'>❌ Wystąpił błąd podczas zapisywania danych.</div>";
-        error_log("Błąd dodawania: " . $e->getMessage());
     }
 }
 
@@ -66,6 +70,7 @@ require_once 'header.php';
 <?php if(!empty($message)) echo $message; ?>
 
 <form method="POST" action="">
+    <?= csrf_field(); ?>
     <div class="type-selector">
         <div class="type-option">
             <input type="radio" id="typeClient" name="orderType" value="client" checked>
