@@ -377,6 +377,7 @@ textarea {
 .info-card {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
+    border-left: 4px solid var(--panel-accent);
     border-radius: var(--radius-lg);
     padding: 24px;
     margin-bottom: 24px;
@@ -508,7 +509,6 @@ th {
     text-transform: uppercase;
     font-size: 0.74rem;
     letter-spacing: 0.08em;
-    white-space: nowrap;
 }
 tbody tr {
     transition: var(--transition);
@@ -585,6 +585,7 @@ tr:last-child td {
 .filter-card {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
+    border-left: 4px solid var(--panel-accent);
     border-radius: var(--radius-lg);
     padding: 24px;
     margin-bottom: 24px;
