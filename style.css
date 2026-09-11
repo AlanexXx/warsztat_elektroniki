@@ -14,7 +14,11 @@
     --accent-surface-hover: #d95f12;
     --accent-surface-rgb: 244, 116, 30;
     --accent-top: #ff8c44;
-    --button-primary-text: #111111;
+    --button-primary-bg: #b44e13;
+    --button-primary-hover: #953f0f;
+    --button-primary-top: #bf5415;
+    --button-primary-rgb: 180, 78, 19;
+    --button-primary-text: #fffaf5;
     --badge-type-text: #111111;
     --success-bg: #d8efdf;
     --success-color: #226d3e;
@@ -70,7 +74,11 @@
     --accent-surface-hover: #d95f12;
     --accent-surface-rgb: 255, 122, 61;
     --accent-top: #ff975f;
-    --button-primary-text: #111111;
+    --button-primary-bg: #b44e13;
+    --button-primary-hover: #953f0f;
+    --button-primary-top: #bf5415;
+    --button-primary-rgb: 180, 78, 19;
+    --button-primary-text: #fffaf5;
     --badge-type-text: #111111;
     --success-bg: rgba(34, 109, 62, 0.28);
     --success-color: #74d497;
@@ -299,17 +307,17 @@ textarea {
     gap: 8px;
 }
 .btn-primary {
-    background-color: var(--accent-surface);
-    background-image: linear-gradient(180deg, var(--accent-top) 0%, var(--accent-surface) 100%);
+    background-color: var(--button-primary-bg);
+    background-image: linear-gradient(180deg, var(--button-primary-top) 0%, var(--button-primary-bg) 100%);
     color: var(--button-primary-text);
-    border: 1px solid rgba(var(--accent-surface-rgb), 0.24);
-    box-shadow: 0 10px 18px -12px rgba(var(--accent-surface-rgb), 0.6), 0 3px 8px -5px rgba(var(--accent-surface-rgb), 0.45);
+    border: 1px solid rgba(var(--button-primary-rgb), 0.28);
+    box-shadow: 0 10px 18px -12px rgba(var(--button-primary-rgb), 0.6), 0 3px 8px -5px rgba(var(--button-primary-rgb), 0.45);
 }
 .btn-primary:hover {
-    background-color: var(--accent-surface-hover);
-    background-image: linear-gradient(180deg, var(--accent-surface) 0%, var(--accent-surface-hover) 100%);
+    background-color: var(--button-primary-hover);
+    background-image: linear-gradient(180deg, var(--button-primary-bg) 0%, var(--button-primary-hover) 100%);
     transform: translateY(-1px);
-    box-shadow: 0 14px 24px -16px rgba(var(--accent-surface-rgb), 0.7), 0 6px 12px -8px rgba(var(--accent-surface-rgb), 0.45);
+    box-shadow: 0 14px 24px -16px rgba(var(--button-primary-rgb), 0.7), 0 6px 12px -8px rgba(var(--button-primary-rgb), 0.45);
 }
 .btn-secondary {
     background-color: var(--btn-sec-bg);
@@ -578,34 +586,9 @@ tr:last-child td {
     content: "";
     width: 8px;
     height: 8px;
+    border-radius: 50%;
     background-color: currentColor;
     flex-shrink: 0;
-}
-.badge-client::before,
-.badge-status-przyjeto::before,
-.test-status-default::before {
-    border-radius: 50%;
-}
-.badge-own::before,
-.badge-status-czeka::before,
-.test-status-partial::before {
-    border-radius: 2px;
-}
-.badge-status-w-trakcie::before {
-    border-radius: 2px;
-    transform: rotate(45deg);
-}
-.badge-status-gotowe::before,
-.test-status-ok::before {
-    width: 10px;
-    border-radius: 999px;
-}
-.badge-status-zamkniete::before,
-.test-status-error::before {
-    width: 10px;
-    height: 3px;
-    margin: 2px 0;
-    border-radius: 999px;
 }
 
 .filter-card {
