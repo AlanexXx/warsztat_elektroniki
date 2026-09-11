@@ -18,6 +18,40 @@ if (themeToggleBtn) {
     });
 }
 
+function getCsrfToken() {
+    const dedicatedTokenInput = document.getElementById('csrfTokenAjax');
+    if (dedicatedTokenInput) {
+        return dedicatedTokenInput.value;
+    }
+
+    const tokenInput = document.querySelector('input[name="csrf_token"]');
+    return tokenInput ? tokenInput.value : '';
+}
+
+function appendCsrfToken(formData) {
+    formData.append('csrf_token', getCsrfToken());
+}
+
+function handleJsonResponse(response) {
+    return response.text().then(text => {
+        let data = {};
+
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch (error) {
+                throw new Error(response.ok ? 'Nieprawidłowa odpowiedź serwera.' : 'Wystąpił błąd serwera.');
+            }
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Wystąpił błąd serwera.');
+        }
+
+        return data;
+    });
+}
+
 // --- DROPDOWNY (lista.php) ---
 window.toggleDropdown = function(menuId) {
     const menu = document.getElementById(menuId);
@@ -126,8 +160,8 @@ function initPattern(gridId, inputId, clearBtnId) {
     }
 }
 
-initPattern('patternGrid', 'patternCodeInput', 'clearPatternBtn');       // Dla dodaj.php
-initPattern('editPatternGrid', 'editPatternCodeInput', 'editClearPatternBtn'); // Dla obsluga.php
+initPattern('patternGrid', 'patternCodeInput', 'clearPatternBtn');
+initPattern('editPatternGrid', 'editPatternCodeInput', 'editClearPatternBtn');
 
 // --- EDYCJA W OBSLUGA.PHP ---
 window.toggleEdit = function(sectionId) {
@@ -203,22 +237,26 @@ window.dodajCzesc = function(zlecenieId) {
     formData.append('part_name', nazwa);
     formData.append('part_price', cena);
     formData.append('ajax', '1');
+    appendCsrfToken(formData);
 
     fetch('obsluga.php?id=' + zlecenieId, {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(handleJsonResponse)
     .then(data => {
         if (data.success) {
             nazwaInput.value = '';
             cenaInput.value = '';
             window.odswiezTabeluCzesci(data.parts, data.totalPartsPrice);
         } else {
-            alert('Błąd podczas dodawania części.');
+            alert(data.error || 'Błąd podczas dodawania części.');
         }
     })
-    .catch(error => console.error('Błąd:', error));
+    .catch(error => {
+        alert(error.message || 'Błąd podczas dodawania części.');
+        console.error('Błąd:', error);
+    });
 };
 
 window.usunCzesci = function(partId, zlecenieId) {
@@ -228,40 +266,54 @@ window.usunCzesci = function(partId, zlecenieId) {
     formData.append('action', 'delete_part');
     formData.append('part_id', partId);
     formData.append('ajax', '1');
+    appendCsrfToken(formData);
 
     fetch('obsluga.php?id=' + zlecenieId, {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(handleJsonResponse)
     .then(data => {
         if (data.success) {
             window.odswiezTabeluCzesci(data.parts, data.totalPartsPrice);
         } else {
-            alert('Błąd podczas usuwania części.');
+            alert(data.error || 'Błąd podczas usuwania części.');
         }
     })
-    .catch(error => console.error('Błąd:', error));
+    .catch(error => {
+        alert(error.message || 'Błąd podczas usuwania części.');
+        console.error('Błąd:', error);
+    });
 };
 
 // --- STATUS TESTU (test.php) ---
 window.zmienStatus = function(selectElement, klucz, zlecenieId) {
     var nowyStatus = selectElement.value;
+    var poprzedniStatus = selectElement.dataset.previousStatus || 'nie_sprawdzono';
     var formData = new FormData();
     
     formData.append('klucz_testu', klucz);
     formData.append('status', nowyStatus);
+    appendCsrfToken(formData);
 
     fetch('test.php?id=' + zlecenieId, {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(handleJsonResponse)
     .then(data => {
         if (data.success) {
+            selectElement.dataset.previousStatus = nowyStatus;
             selectElement.style.borderColor = 'var(--success-color)';
             setTimeout(() => selectElement.style.borderColor = '', 600);
+        } else {
+            selectElement.value = poprzedniStatus;
+            alert(data.error || 'Błąd podczas zapisu.');
         }
     })
-    .catch(error => console.error('Błąd podczas zapisu:', error));
+    .catch(error => {
+        selectElement.value = poprzedniStatus;
+        alert(error.message || 'Błąd podczas zapisu.');
+        console.error('Błąd podczas zapisu:', error);
+    });
 };
