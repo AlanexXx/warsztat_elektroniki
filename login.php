@@ -22,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($user && password_verify($haslo, $user['haslo'])) {
                 session_regenerate_id(true);
+                csrf_rotate();
                 $_SESSION['zalogowany'] = true;
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_login'] = $user['login'];

@@ -5,6 +5,10 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+function csrf_rotate(): void {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 function csrf_field() {
     return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') . '">';
 }

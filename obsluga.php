@@ -1,6 +1,8 @@
 <?php
 require_once 'db.php';
 
+$kategorieTestow = require_once 'kategorie_testow.php';
+
 function dodajWpisHistorii($pdo, $zlecenieId, $typZmiany, $opis) {
     $uzytkownik = $_SESSION['user_login'] ?? 'System';
     $stmt = $pdo->prepare("INSERT INTO historia_zmian (zlecenie_id, uzytkownik, typ_zmiany, opis) VALUES (:zlecenie_id, :uzytkownik, :typ_zmiany, :opis)");
@@ -214,15 +216,8 @@ try {
     die("Błąd odczytu bazy danych: " . $e->getMessage());
 }
 
-$mapa_ilosci = [
-    'Laptop / Komputer' => 13,
-    'Smartfon / Tablet' => 14,
-    'Audio / Wzmacniacz' => 5,
-    'Konsola' => 10,
-    'Inne' => 3
-];
-$kat = isset($dane['deviceCategory']) ? $dane['deviceCategory'] : 'Inne';
-$wszystkichTestow = isset($mapa_ilosci[$kat]) ? $mapa_ilosci[$kat] : 3;
+$kat = $dane['deviceCategory'] ?? 'Inne';
+$wszystkichTestow = count($kategorieTestow[$kat] ?? $kategorieTestow['Inne']);
 
 $stmt_testy = $pdo->prepare("SELECT COUNT(CASE WHEN status != 'nie_sprawdzono' THEN 1 END) as sprawdzone, COUNT(CASE WHEN status = 'uszkodzone' THEN 1 END) as uszkodzone FROM zlecenie_testy WHERE zlecenie_id = :id");
 $stmt_testy->execute([':id' => $id]);
