@@ -42,159 +42,159 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $message = "<div class='alert error'>❌ Nieprawidłowe żądanie. Odśwież stronę i spróbuj ponownie.</div>";
     } else {
         try {
-        $stmt_chk = $pdo->prepare("SELECT orderType FROM zlecenia WHERE id = :id");
-        $stmt_chk->execute([':id' => $id]);
-        $row_chk = $stmt_chk->fetch(PDO::FETCH_ASSOC);
-        $isClient = ($row_chk && $row_chk['orderType'] === 'client');
+            $stmt_chk = $pdo->prepare("SELECT orderType FROM zlecenia WHERE id = :id");
+            $stmt_chk->execute([':id' => $id]);
+            $row_chk = $stmt_chk->fetch(PDO::FETCH_ASSOC);
+            $isClient = ($row_chk && $row_chk['orderType'] === 'client');
 
-        if ($action === 'section1') {
-            if ($isClient) {
-                $sql = "UPDATE zlecenia SET clientName = :clientName, clientPhone = :clientPhone, clientEmail = :clientEmail, price = :price WHERE id = :id";
+            if ($action === 'section1') {
+                if ($isClient) {
+                    $sql = "UPDATE zlecenia SET clientName = :clientName, clientPhone = :clientPhone, clientEmail = :clientEmail, price = :price WHERE id = :id";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([
+                        ':id' => $id,
+                        ':clientName' => $_POST['clientName'] ?? null,
+                        ':clientPhone' => $_POST['clientPhone'] ?? null,
+                        ':clientEmail' => $_POST['clientEmail'] ?? null,
+                        ':price' => !empty($_POST['price']) ? $_POST['price'] : null
+                    ]);
+                } else {
+                    $sql = "UPDATE zlecenia SET purchasePrice = :purchasePrice, additionalCost = :additionalCost, purchaseSource = :purchaseSource WHERE id = :id";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([
+                        ':id' => $id,
+                        ':purchasePrice' => !empty($_POST['purchasePrice']) ? $_POST['purchasePrice'] : null,
+                        ':additionalCost' => !empty($_POST['additionalCost']) ? $_POST['additionalCost'] : null,
+                        ':purchaseSource' => $_POST['purchaseSource'] ?? null
+                    ]);
+                }
+                dodajWpisHistorii($pdo, $id, 'Dane podstawowe', 'Zaktualizowano dane podstawowe / zakup');
+                $message = "<div class='alert success'>✅ Dane podstawowe/zakupu zostały zaktualizowane!</div>";
+            } elseif ($action === 'section_sale') {
+                $salePrice = !empty($_POST['salePrice']) ? $_POST['salePrice'] : null;
+                $saleDate = !empty($_POST['saleDate']) ? $_POST['saleDate'] : null;
+            
+                $extraSql = "";
+                $params = [
+                    ':id' => $id,
+                    ':salePrice' => $salePrice,
+                    ':saleDate' => $saleDate
+                ];
+            
+                if ($salePrice !== null && $saleDate !== null) {
+                    $extraSql = ", initialStatus = 'Sprzedane'";
+                }
+
+                $sql = "UPDATE zlecenia SET salePrice = :salePrice, saleDate = :saleDate $extraSql WHERE id = :id";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($params);
+                dodajWpisHistorii($pdo, $id, 'Sprzedaż', 'Zaktualizowano dane sprzedaży i zysk');
+                $message = "<div class='alert success'>✅ Dane sprzedaży zostały zaktualizowane!</div>";
+            } elseif ($action === 'section2') {
+                $lockType = $_POST['lockType'] ?? 'Brak';
+                $lockCodeVal = 'Brak';
+                if ($lockType === 'PIN/Hasło') {
+                    $lockCodeVal = 'PIN: ' . trim($_POST['lockPinValue'] ?? '');
+                } elseif ($lockType === 'Wzór') {
+                    $lockCodeVal = 'Wzór: ' . trim($_POST['patternCode'] ?? '');
+                }
+
+                $sql = "UPDATE zlecenia SET deviceCategory = :deviceCategory, deviceBrandModel = :deviceBrandModel, serialNumber = :serialNumber, lockCode = :lockCode, admissionDate = :admissionDate, accessories = :accessories, visualCondition = :visualCondition, faultDescription = :faultDescription WHERE id = :id";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':id' => $id,
-                    ':clientName' => $_POST['clientName'] ?? null,
-                    ':clientPhone' => $_POST['clientPhone'] ?? null,
-                    ':clientEmail' => $_POST['clientEmail'] ?? null,
-                    ':price' => !empty($_POST['price']) ? $_POST['price'] : null
+                    ':deviceCategory' => $_POST['deviceCategory'] ?? null,
+                    ':deviceBrandModel' => $_POST['deviceBrandModel'] ?? null,
+                    ':serialNumber' => $_POST['serialNumber'] ?? null,
+                    ':lockCode' => $lockCodeVal,
+                    ':admissionDate' => $_POST['admissionDate'] ?? null,
+                    ':accessories' => $_POST['accessories'] ?? null,
+                    ':visualCondition' => $_POST['visualCondition'] ?? null,
+                    ':faultDescription' => $_POST['faultDescription'] ?? null
                 ]);
-            } else {
-                $sql = "UPDATE zlecenia SET purchasePrice = :purchasePrice, additionalCost = :additionalCost, purchaseSource = :purchaseSource WHERE id = :id";
+                dodajWpisHistorii($pdo, $id, 'Sprzęt', 'Zaktualizowano informacje o sprzęcie i usterce');
+                $message = "<div class='alert success'>✅ Informacje o sprzęcie i usterce zostały zaktualizowane!</div>";
+            } elseif ($action === 'section3') {
+                $stmt_old = $pdo->prepare("SELECT initialStatus FROM zlecenia WHERE id = :id");
+                $stmt_old->execute([':id' => $id]);
+                $oldData = $stmt_old->fetch(PDO::FETCH_ASSOC);
+                $staryStatus = $oldData['initialStatus'] ?? 'Przyjęto';
+                $nowyStatus = $_POST['initialStatus'] ?? 'Przyjęto';
+
+                $sql = "UPDATE zlecenia SET repairNotes = :repairNotes, initialStatus = :initialStatus WHERE id = :id";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':id' => $id,
-                    ':purchasePrice' => !empty($_POST['purchasePrice']) ? $_POST['purchasePrice'] : null,
-                    ':additionalCost' => !empty($_POST['additionalCost']) ? $_POST['additionalCost'] : null,
-                    ':purchaseSource' => $_POST['purchaseSource'] ?? null
+                    ':repairNotes' => $_POST['repairNotes'] ?? null,
+                    ':initialStatus' => $nowyStatus
                 ]);
-            }
-            dodajWpisHistorii($pdo, $id, 'Dane podstawowe', 'Zaktualizowano dane podstawowe / zakup');
-            $message = "<div class='alert success'>✅ Dane podstawowe/zakupu zostały zaktualizowane!</div>";
-        } elseif ($action === 'section_sale') {
-            $salePrice = !empty($_POST['salePrice']) ? $_POST['salePrice'] : null;
-            $saleDate = !empty($_POST['saleDate']) ? $_POST['saleDate'] : null;
-            
-            $extraSql = "";
-            $params = [
-                ':id' => $id,
-                ':salePrice' => $salePrice,
-                ':saleDate' => $saleDate
-            ];
-            
-            if ($salePrice !== null && $saleDate !== null) {
-                $extraSql = ", initialStatus = 'Sprzedane'";
-            }
 
-            $sql = "UPDATE zlecenia SET salePrice = :salePrice, saleDate = :saleDate $extraSql WHERE id = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            dodajWpisHistorii($pdo, $id, 'Sprzedaż', 'Zaktualizowano dane sprzedaży i zysk');
-            $message = "<div class='alert success'>✅ Dane sprzedaży zostały zaktualizowane!</div>";
-        } elseif ($action === 'section2') {
-            $lockType = $_POST['lockType'] ?? 'Brak';
-            $lockCodeVal = 'Brak';
-            if ($lockType === 'PIN/Hasło') {
-                $lockCodeVal = 'PIN: ' . trim($_POST['lockPinValue'] ?? '');
-            } elseif ($lockType === 'Wzór') {
-                $lockCodeVal = 'Wzór: ' . trim($_POST['patternCode'] ?? '');
-            }
-
-            $sql = "UPDATE zlecenia SET deviceCategory = :deviceCategory, deviceBrandModel = :deviceBrandModel, serialNumber = :serialNumber, lockCode = :lockCode, admissionDate = :admissionDate, accessories = :accessories, visualCondition = :visualCondition, faultDescription = :faultDescription WHERE id = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':id' => $id,
-                ':deviceCategory' => $_POST['deviceCategory'] ?? null,
-                ':deviceBrandModel' => $_POST['deviceBrandModel'] ?? null,
-                ':serialNumber' => $_POST['serialNumber'] ?? null,
-                ':lockCode' => $lockCodeVal,
-                ':admissionDate' => $_POST['admissionDate'] ?? null,
-                ':accessories' => $_POST['accessories'] ?? null,
-                ':visualCondition' => $_POST['visualCondition'] ?? null,
-                ':faultDescription' => $_POST['faultDescription'] ?? null
-            ]);
-            dodajWpisHistorii($pdo, $id, 'Sprzęt', 'Zaktualizowano informacje o sprzęcie i usterce');
-            $message = "<div class='alert success'>✅ Informacje o sprzęcie i usterce zostały zaktualizowane!</div>";
-        } elseif ($action === 'section3') {
-            $stmt_old = $pdo->prepare("SELECT initialStatus FROM zlecenia WHERE id = :id");
-            $stmt_old->execute([':id' => $id]);
-            $oldData = $stmt_old->fetch(PDO::FETCH_ASSOC);
-            $staryStatus = $oldData['initialStatus'] ?? 'Przyjęto';
-            $nowyStatus = $_POST['initialStatus'] ?? 'Przyjęto';
-
-            $sql = "UPDATE zlecenia SET repairNotes = :repairNotes, initialStatus = :initialStatus WHERE id = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':id' => $id,
-                ':repairNotes' => $_POST['repairNotes'] ?? null,
-                ':initialStatus' => $nowyStatus
-            ]);
-
-            if ($staryStatus !== $nowyStatus) {
-                dodajWpisHistorii($pdo, $id, 'Status', "Zmieniono status z $staryStatus na $nowyStatus");
-            } else {
-                dodajWpisHistorii($pdo, $id, 'Naprawa', "Zaktualizowano wykonane prace / uwagi");
-            }
-            $message = "<div class='alert success'>✅ Status i wykonane prace zostały zaktualizowane!</div>";
-        } elseif ($action === 'add_part') {
-            $partName = trim($_POST['part_name'] ?? '');
-            $partPrice = !empty($_POST['part_price']) ? $_POST['part_price'] : 0;
-            if (!empty($partName)) {
-                $stmt = $pdo->prepare("INSERT INTO czesci_naprawy (zlecenie_id, nazwa, cena) VALUES (:id, :nazwa, :cena)");
-                $stmt->execute([':id' => $id, ':nazwa' => $partName, ':cena' => $partPrice]);
-                dodajWpisHistorii($pdo, $id, 'Części', 'Dodano część: ' . $partName . ' (' . number_format((float)$partPrice, 2, ',', ' ') . ' zł)');
-            }
-            if ($isAjax) {
-                $stmt_p = $pdo->prepare("SELECT * FROM czesci_naprawy WHERE zlecenie_id = :id");
-                $stmt_p->execute([':id' => $id]);
-                $parts = $stmt_p->fetchAll(PDO::FETCH_ASSOC);
+                if ($staryStatus !== $nowyStatus) {
+                    dodajWpisHistorii($pdo, $id, 'Status', "Zmieniono status z $staryStatus na $nowyStatus");
+                } else {
+                    dodajWpisHistorii($pdo, $id, 'Naprawa', "Zaktualizowano wykonane prace / uwagi");
+                }
+                $message = "<div class='alert success'>✅ Status i wykonane prace zostały zaktualizowane!</div>";
+            } elseif ($action === 'add_part') {
+                $partName = trim($_POST['part_name'] ?? '');
+                $partPrice = !empty($_POST['part_price']) ? $_POST['part_price'] : 0;
+                if (!empty($partName)) {
+                    $stmt = $pdo->prepare("INSERT INTO czesci_naprawy (zlecenie_id, nazwa, cena) VALUES (:id, :nazwa, :cena)");
+                    $stmt->execute([':id' => $id, ':nazwa' => $partName, ':cena' => $partPrice]);
+                    dodajWpisHistorii($pdo, $id, 'Części', 'Dodano część: ' . $partName . ' (' . number_format((float)$partPrice, 2, ',', ' ') . ' zł)');
+                }
+                if ($isAjax) {
+                    $stmt_p = $pdo->prepare("SELECT * FROM czesci_naprawy WHERE zlecenie_id = :id");
+                    $stmt_p->execute([':id' => $id]);
+                    $parts = $stmt_p->fetchAll(PDO::FETCH_ASSOC);
                 
-                $totalPartsPrice = 0;
-                foreach ($parts as $p) { $totalPartsPrice += (float)$p['cena']; }
+                    $totalPartsPrice = 0;
+                    foreach ($parts as $p) { $totalPartsPrice += (float)$p['cena']; }
 
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => true,
+                        'parts' => $parts,
+                        'totalPartsPrice' => number_format($totalPartsPrice, 2, ',', ' ')
+                    ]);
+                    exit;
+                }
+            } elseif ($action === 'delete_part') {
+                $partId = $_POST['part_id'] ?? null;
+                if ($partId) {
+                    $stmt_pname = $pdo->prepare("SELECT nazwa FROM czesci_naprawy WHERE id = :pid AND zlecenie_id = :id");
+                    $stmt_pname->execute([':pid' => $partId, ':id' => $id]);
+                    $pData = $stmt_pname->fetch(PDO::FETCH_ASSOC);
+                    $pNameUsunieta = $pData['nazwa'] ?? 'nieznana';
+
+                    $stmt = $pdo->prepare("DELETE FROM czesci_naprawy WHERE id = :pid AND zlecenie_id = :id");
+                    $stmt->execute([':pid' => $partId, ':id' => $id]);
+                    dodajWpisHistorii($pdo, $id, 'Części', 'Usunięto część: ' . $pNameUsunieta);
+                }
+                if ($isAjax) {
+                    $stmt_p = $pdo->prepare("SELECT * FROM czesci_naprawy WHERE zlecenie_id = :id");
+                    $stmt_p->execute([':id' => $id]);
+                    $parts = $stmt_p->fetchAll(PDO::FETCH_ASSOC);
+                
+                    $totalPartsPrice = 0;
+                    foreach ($parts as $p) { $totalPartsPrice += (float)$p['cena']; }
+
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => true,
+                        'parts' => $parts,
+                        'totalPartsPrice' => number_format($totalPartsPrice, 2, ',', ' ')
+                    ]);
+                    exit;
+                }
+            }
+        } catch(PDOException $e) {
+            if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => true,
-                    'parts' => $parts,
-                    'totalPartsPrice' => number_format($totalPartsPrice, 2, ',', ' ')
-                ]);
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
                 exit;
             }
-        } elseif ($action === 'delete_part') {
-            $partId = $_POST['part_id'] ?? null;
-            if ($partId) {
-                $stmt_pname = $pdo->prepare("SELECT nazwa FROM czesci_naprawy WHERE id = :pid AND zlecenie_id = :id");
-                $stmt_pname->execute([':pid' => $partId, ':id' => $id]);
-                $pData = $stmt_pname->fetch(PDO::FETCH_ASSOC);
-                $pNameUsunieta = $pData['nazwa'] ?? 'nieznana';
-
-                $stmt = $pdo->prepare("DELETE FROM czesci_naprawy WHERE id = :pid AND zlecenie_id = :id");
-                $stmt->execute([':pid' => $partId, ':id' => $id]);
-                dodajWpisHistorii($pdo, $id, 'Części', 'Usunięto część: ' . $pNameUsunieta);
-            }
-            if ($isAjax) {
-                $stmt_p = $pdo->prepare("SELECT * FROM czesci_naprawy WHERE zlecenie_id = :id");
-                $stmt_p->execute([':id' => $id]);
-                $parts = $stmt_p->fetchAll(PDO::FETCH_ASSOC);
-                
-                $totalPartsPrice = 0;
-                foreach ($parts as $p) { $totalPartsPrice += (float)$p['cena']; }
-
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => true,
-                    'parts' => $parts,
-                    'totalPartsPrice' => number_format($totalPartsPrice, 2, ',', ' ')
-                ]);
-                exit;
-            }
-        }
-    } catch(PDOException $e) {
-        if ($isAjax) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-            exit;
-        }
-        $message = "<div class='alert error'>❌ Błąd bazy danych: " . $e->getMessage() . "</div>";
+            $message = "<div class='alert error'>❌ Błąd bazy danych: " . $e->getMessage() . "</div>";
         }
     }
 }
