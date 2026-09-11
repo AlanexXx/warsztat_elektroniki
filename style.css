@@ -554,13 +554,13 @@ tr:last-child td {
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
-.badge-client { background-color: var(--badge-client-bg); color: var(--badge-client-color); }
-.badge-own { background-color: var(--badge-own-bg); color: var(--badge-own-color); }
-.badge-status-przyjeto { background-color: var(--badge-received-bg); color: var(--badge-received-color); }
-.badge-status-czeka { background-color: var(--badge-waiting-bg); color: var(--badge-waiting-color); }
-.badge-status-w-trakcie { background-color: var(--badge-progress-bg); color: var(--badge-progress-color); }
-.badge-status-gotowe { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); }
-.badge-status-zamkniete { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); }
+.badge-client { background-color: var(--badge-client-bg); color: var(--badge-client-color); border-style: solid; }
+.badge-own { background-color: var(--badge-own-bg); color: var(--badge-own-color); border-style: dashed; }
+.badge-status-przyjeto { background-color: var(--badge-received-bg); color: var(--badge-received-color); border-style: solid; }
+.badge-status-czeka { background-color: var(--badge-waiting-bg); color: var(--badge-waiting-color); border-style: dashed; }
+.badge-status-w-trakcie { background-color: var(--badge-progress-bg); color: var(--badge-progress-color); border-style: dotted; }
+.badge-status-gotowe { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); border-style: double; border-width: 2px; padding: 5px 11px; }
+.badge-status-zamkniete { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); border-style: solid; }
 .badge-type { background-color: var(--accent-surface); background-image: linear-gradient(180deg, var(--accent-top) 0%, var(--accent-surface) 100%); color: var(--badge-type-text); padding: 6px 14px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; }
 
 .badge-client::before,
@@ -574,26 +574,13 @@ tr:last-child td {
 .test-status-partial::before,
 .test-status-error::before,
 .test-status-ok::before {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 0.9rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-    line-height: 1;
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
     flex-shrink: 0;
 }
-.badge-client::before { content: "◧"; }
-.badge-own::before { content: "◩"; }
-.badge-status-przyjeto::before { content: "●"; }
-.badge-status-czeka::before,
-.test-status-partial::before { content: "▲"; }
-.badge-status-w-trakcie::before { content: "◆"; }
-.badge-status-gotowe::before,
-.test-status-ok::before { content: "✓"; }
-.badge-status-zamkniete::before,
-.test-status-default::before { content: "■"; }
-.test-status-error::before { content: "!"; }
 
 .filter-card {
     background-color: var(--card-bg);
@@ -973,10 +960,10 @@ tr:last-child td {
     padding: 2px 8px;
 }
 
-.test-status-default { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); }
-.test-status-partial { background-color: var(--badge-waiting-bg); color: var(--badge-waiting-color); }
-.test-status-error { background-color: var(--error-bg); color: var(--error-color); }
-.test-status-ok { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); }
+.test-status-default { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); border-style: solid; }
+.test-status-partial { background-color: var(--badge-waiting-bg); color: var(--badge-waiting-color); border-style: dashed; }
+.test-status-error { background-color: var(--error-bg); color: var(--error-color); border-style: double; border-width: 2px; padding: 5px 11px; }
+.test-status-ok { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); border-style: double; border-width: 2px; padding: 5px 11px; }
 
 .obsluga-header-actions {
     display: flex;
