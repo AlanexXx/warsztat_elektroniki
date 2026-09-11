@@ -43,6 +43,7 @@
     --badge-ready-color: #1f6e3e;
     --badge-closed-bg: #dde2e7;
     --badge-closed-color: #4b525c;
+    --badge-border-color: rgba(43, 47, 53, 0.12);
 
     /* Zmienne dla cieni i zaokrągleń */
     --shadow-sm: 0 1px 2px 0 rgb(23 27 32 / 0.08);
@@ -96,6 +97,7 @@
     --badge-ready-color: #82dda3;
     --badge-closed-bg: rgba(117, 125, 138, 0.24);
     --badge-closed-color: #d5dbe3;
+    --badge-border-color: rgba(240, 237, 230, 0.18);
 
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.35);
     --shadow-md: 0 10px 20px -14px rgb(0 0 0 / 0.5), 0 2px 6px -3px rgb(0 0 0 / 0.28);
@@ -532,27 +534,31 @@ tr:last-child td {
 }
 
 .badge,
-.obsluga-status-badge {
+.obsluga-status-badge,
+.test-status-default,
+.test-status-partial,
+.test-status-error,
+.test-status-ok {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    padding: 6px 12px;
     border-radius: var(--radius-md);
-    border: 1px solid transparent;
+    border: 1px solid var(--badge-border-color);
     font-weight: 700;
 }
 .badge {
-    padding: 6px 12px;
     font-size: 0.75rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
-.badge-client { background-color: var(--badge-client-bg); color: var(--badge-client-color); border-color: rgba(0, 0, 0, 0.04); }
-.badge-own { background-color: var(--badge-own-bg); color: var(--badge-own-color); border-color: rgba(0, 0, 0, 0.04); }
-.badge-status-przyjeto { background-color: var(--badge-received-bg); color: var(--badge-received-color); border-color: rgba(0, 0, 0, 0.04); }
-.badge-status-czeka { background-color: var(--badge-waiting-bg); color: var(--badge-waiting-color); border-color: rgba(0, 0, 0, 0.04); }
-.badge-status-w-trakcie { background-color: var(--badge-progress-bg); color: var(--badge-progress-color); border-color: rgba(0, 0, 0, 0.04); }
-.badge-status-gotowe { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); border-color: rgba(0, 0, 0, 0.04); }
-.badge-status-zamkniete { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); border-color: rgba(0, 0, 0, 0.04); }
+.badge-client { background-color: var(--badge-client-bg); color: var(--badge-client-color); }
+.badge-own { background-color: var(--badge-own-bg); color: var(--badge-own-color); }
+.badge-status-przyjeto { background-color: var(--badge-received-bg); color: var(--badge-received-color); }
+.badge-status-czeka { background-color: var(--badge-waiting-bg); color: var(--badge-waiting-color); }
+.badge-status-w-trakcie { background-color: var(--badge-progress-bg); color: var(--badge-progress-color); }
+.badge-status-gotowe { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); }
+.badge-status-zamkniete { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); }
 .badge-type { background-color: var(--accent-surface); background-image: linear-gradient(180deg, var(--accent-top) 0%, var(--accent-surface) 100%); color: var(--accent-ink); padding: 6px 14px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; }
 
 .badge-client::before,
@@ -952,10 +958,10 @@ tr:last-child td {
     padding: 2px 8px;
 }
 
-.test-status-default { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); border-color: rgba(0, 0, 0, 0.04); }
-.test-status-partial { background-color: var(--badge-waiting-bg); color: var(--badge-waiting-color); border-color: rgba(0, 0, 0, 0.04); }
-.test-status-error { background-color: var(--error-bg); color: var(--error-color); border-color: rgba(0, 0, 0, 0.04); }
-.test-status-ok { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); border-color: rgba(0, 0, 0, 0.04); }
+.test-status-default { background-color: var(--badge-closed-bg); color: var(--badge-closed-color); }
+.test-status-partial { background-color: var(--badge-waiting-bg); color: var(--badge-waiting-color); }
+.test-status-error { background-color: var(--error-bg); color: var(--error-color); }
+.test-status-ok { background-color: var(--badge-ready-bg); color: var(--badge-ready-color); }
 
 .obsluga-header-actions {
     display: flex;
@@ -964,7 +970,6 @@ tr:last-child td {
 }
 
 .obsluga-status-badge {
-    padding: 6px 12px;
     font-size: 0.85rem;
     letter-spacing: 0.03em;
 }
