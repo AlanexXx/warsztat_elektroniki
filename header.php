@@ -11,7 +11,9 @@
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+<?php if (isset($_SESSION['zalogowany']) && $_SESSION['zalogowany'] === true): ?>
         const CSRF_TOKEN = <?= json_encode($_SESSION['csrf_token'] ?? ''); ?>;
+<?php endif; ?>
     </script>
 </head>
 <body>
