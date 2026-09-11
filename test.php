@@ -1,7 +1,9 @@
 <?php
 require_once 'db.php';
 
-$kategorieTestow = require_once 'kategorie_testow.php';
+if (!isset($kategorieTestow) || !is_array($kategorieTestow)) {
+    $kategorieTestow = require 'kategorie_testow.php';
+}
 $dozwoloneStatusy = ['ok', 'uszkodzone', 'nie_sprawdzono'];
 $dozwoloneKluczeTestow = [];
 foreach ($kategorieTestow as $testyKategorii) {

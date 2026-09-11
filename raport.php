@@ -23,7 +23,9 @@ try {
     die("Błąd bazy danych: " . $e->getMessage());
 }
 
-$kategorieTestow = require_once 'kategorie_testow.php';
+if (!isset($kategorieTestow) || !is_array($kategorieTestow)) {
+    $kategorieTestow = require 'kategorie_testow.php';
+}
 $kategoria = $dane['deviceCategory'] ?? 'Inne';
 $dostepneTesty = $kategorieTestow[$kategoria] ?? $kategorieTestow['Inne'];
 

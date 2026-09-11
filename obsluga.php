@@ -1,7 +1,9 @@
 <?php
 require_once 'db.php';
 
-$kategorieTestow = require_once 'kategorie_testow.php';
+if (!isset($kategorieTestow) || !is_array($kategorieTestow)) {
+    $kategorieTestow = require 'kategorie_testow.php';
+}
 
 function dodajWpisHistorii($pdo, $zlecenieId, $typZmiany, $opis) {
     $uzytkownik = $_SESSION['user_login'] ?? 'System';
