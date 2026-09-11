@@ -590,6 +590,27 @@ tr:last-child td {
     background-color: currentColor;
     flex-shrink: 0;
 }
+.badge-own::before,
+.badge-status-czeka::before,
+.test-status-partial::before {
+    border-radius: 2px;
+}
+.badge-status-w-trakcie::before {
+    border-radius: 2px;
+    transform: rotate(45deg);
+}
+.badge-status-gotowe::before,
+.test-status-ok::before {
+    width: 10px;
+    border-radius: 999px;
+}
+.badge-status-zamkniete::before,
+.test-status-error::before {
+    width: 10px;
+    height: 3px;
+    margin: 2px 0;
+    border-radius: 999px;
+}
 
 .filter-card {
     background-color: var(--card-bg);
