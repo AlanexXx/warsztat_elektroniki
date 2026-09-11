@@ -5,15 +5,23 @@ if (!isset($kategorieTestow) || !is_array($kategorieTestow)) {
     $kategorieTestow = require 'kategorie_testow.php';
 }
 $dozwoloneStatusy = ['ok', 'uszkodzone', 'nie_sprawdzono'];
-$dozwoloneKluczeTestow = [];
-foreach ($kategorieTestow as $testyKategorii) {
-    $dozwoloneKluczeTestow = array_merge($dozwoloneKluczeTestow, array_keys($testyKategorii));
-}
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if ($id === null || $id === false) {
     die("Brak ID zgłoszenia. Wróć do <a href='lista.php'>listy</a>.");
 }
+
+$stmt = $pdo->prepare("SELECT * FROM zlecenia WHERE id = :id");
+$stmt->execute([':id' => $id]);
+$zlecenie = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$zlecenie) {
+    die("Zgłoszenie nie istnieje.");
+}
+
+$kategoria = $zlecenie['deviceCategory'] ?? 'Inne';
+$dostepneTesty = $kategorieTestow[$kategoria] ?? $kategorieTestow['Inne'];
+$dozwoloneKluczeTestow = array_keys($dostepneTesty);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['klucz_testu']) && isset($_POST['status'])) {
     header('Content-Type: application/json');
@@ -53,18 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['klucz_testu']) && iss
     echo json_encode(['success' => true]);
     exit;
 }
-
-$stmt = $pdo->prepare("SELECT * FROM zlecenia WHERE id = :id");
-$stmt->execute([':id' => $id]);
-$zlecenie = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$zlecenie) {
-    die("Zgłoszenie nie istnieje.");
-}
-
-$kategoria = $zlecenie['deviceCategory'] ?? 'Inne';
-$dostepneTesty = $kategorieTestow[$kategoria] ?? $kategorieTestow['Inne'];
-
 $wynikiTestow = [];
 $res = $pdo->prepare("SELECT klucz_testu, status FROM zlecenie_testy WHERE zlecenie_id = :id");
 $res->execute([':id' => $id]);
