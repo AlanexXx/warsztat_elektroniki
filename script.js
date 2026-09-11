@@ -32,6 +32,26 @@ function appendCsrfToken(formData) {
     formData.append('csrf_token', getCsrfToken());
 }
 
+function handleJsonResponse(response) {
+    return response.text().then(text => {
+        let data = {};
+
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch (error) {
+                throw new Error(response.ok ? 'Nieprawidłowa odpowiedź serwera.' : 'Wystąpił błąd serwera.');
+            }
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Wystąpił błąd serwera.');
+        }
+
+        return data;
+    });
+}
+
 // --- DROPDOWNY (lista.php) ---
 window.toggleDropdown = function(menuId) {
     const menu = document.getElementById(menuId);
@@ -223,7 +243,7 @@ window.dodajCzesc = function(zlecenieId) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(handleJsonResponse)
     .then(data => {
         if (data.success) {
             nazwaInput.value = '';
@@ -233,7 +253,10 @@ window.dodajCzesc = function(zlecenieId) {
             alert(data.error || 'Błąd podczas dodawania części.');
         }
     })
-    .catch(error => console.error('Błąd:', error));
+    .catch(error => {
+        alert(error.message || 'Błąd podczas dodawania części.');
+        console.error('Błąd:', error);
+    });
 };
 
 window.usunCzesci = function(partId, zlecenieId) {
@@ -249,7 +272,7 @@ window.usunCzesci = function(partId, zlecenieId) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(handleJsonResponse)
     .then(data => {
         if (data.success) {
             window.odswiezTabeluCzesci(data.parts, data.totalPartsPrice);
@@ -257,12 +280,16 @@ window.usunCzesci = function(partId, zlecenieId) {
             alert(data.error || 'Błąd podczas usuwania części.');
         }
     })
-    .catch(error => console.error('Błąd:', error));
+    .catch(error => {
+        alert(error.message || 'Błąd podczas usuwania części.');
+        console.error('Błąd:', error);
+    });
 };
 
 // --- STATUS TESTU (test.php) ---
 window.zmienStatus = function(selectElement, klucz, zlecenieId) {
     var nowyStatus = selectElement.value;
+    var poprzedniStatus = selectElement.dataset.previousStatus || 'nie_sprawdzono';
     var formData = new FormData();
     
     formData.append('klucz_testu', klucz);
@@ -273,14 +300,20 @@ window.zmienStatus = function(selectElement, klucz, zlecenieId) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(handleJsonResponse)
     .then(data => {
         if (data.success) {
+            selectElement.dataset.previousStatus = nowyStatus;
             selectElement.style.borderColor = 'var(--success-color)';
             setTimeout(() => selectElement.style.borderColor = '', 600);
         } else {
+            selectElement.value = poprzedniStatus;
             alert(data.error || 'Błąd podczas zapisu.');
         }
     })
-    .catch(error => console.error('Błąd podczas zapisu:', error));
+    .catch(error => {
+        selectElement.value = poprzedniStatus;
+        alert(error.message || 'Błąd podczas zapisu.');
+        console.error('Błąd podczas zapisu:', error);
+    });
 };

@@ -98,7 +98,7 @@ require_once 'header.php';
                     <tr>
                         <td><b><?php echo htmlspecialchars($nazwa); ?></b></td>
                         <td class="td-status-col">
-                            <select onchange="zmienStatus(this, '<?php echo htmlspecialchars($klucz); ?>', <?php echo (int) $id; ?>)" class="select-status-box">
+                            <select onchange="zmienStatus(this, '<?php echo htmlspecialchars($klucz); ?>', <?php echo (int) $id; ?>)" class="select-status-box" data-previous-status="<?php echo htmlspecialchars($aktualnyStatus); ?>">
                                 <option value="nie_sprawdzono" <?php if ($aktualnyStatus === 'nie_sprawdzono') { echo 'selected'; } ?>>⚪ Nie sprawdzono</option>
                                 <option value="ok" <?php if ($aktualnyStatus === 'ok') { echo 'selected'; } ?>>🟢 Sprawne (OK)</option>
                                 <option value="uszkodzone" <?php if ($aktualnyStatus === 'uszkodzone') { echo 'selected'; } ?>>🔴 Uszkodzone</option>
