@@ -189,12 +189,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
         } catch(PDOException $e) {
+            error_log("Błąd obsługi zgłoszenia: " . $e->getMessage());
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+                echo json_encode(['success' => false, 'error' => 'Wystąpił błąd podczas przetwarzania żądania.']);
                 exit;
             }
-            $message = "<div class='alert error'>❌ Błąd bazy danych: " . $e->getMessage() . "</div>";
+            $message = "<div class='alert error'>❌ Wystąpił błąd podczas przetwarzania żądania.</div>";
         }
     }
 }
