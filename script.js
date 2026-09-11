@@ -18,8 +18,18 @@ if (themeToggleBtn) {
     });
 }
 
+function getCsrfToken() {
+    const dedicatedTokenInput = document.getElementById('csrfTokenAjax');
+    if (dedicatedTokenInput) {
+        return dedicatedTokenInput.value;
+    }
+
+    const tokenInput = document.querySelector('input[name="csrf_token"]');
+    return tokenInput ? tokenInput.value : '';
+}
+
 function appendCsrfToken(formData) {
-    formData.append('csrf_token', typeof CSRF_TOKEN !== 'undefined' ? CSRF_TOKEN : '');
+    formData.append('csrf_token', getCsrfToken());
 }
 
 // --- DROPDOWNY (lista.php) ---

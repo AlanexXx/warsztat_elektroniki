@@ -80,6 +80,8 @@ require_once 'header.php';
     <a href="obsluga.php?id=<?php echo htmlspecialchars($zlecenie['id']); ?>" class="btn btn-secondary">← Powrót do zlecenia</a>
 </div>
 
+<input type="hidden" id="csrfTokenAjax" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+
 <div class="info-card">
     <p class="test-subtitle"><b>Sprzęt:</b> <?php echo htmlspecialchars($zlecenie['deviceBrandModel']); ?></p>
     <div class="table-wrapper">
