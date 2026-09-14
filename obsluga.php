@@ -217,7 +217,8 @@ try {
     $stmt_historia->execute([':id' => $id]);
     $historiaZmian = $stmt_historia->fetchAll(PDO::FETCH_ASSOC);
 } catch(PDOException $e) {
-    die("Błąd odczytu bazy danych: " . $e->getMessage());
+    error_log("Błąd odczytu bazy danych (obsluga.php): " . $e->getMessage());
+    die("<div class='die-message'>Wystąpił wewnętrzny błąd komunikacji z bazą danych.</div>");
 }
 
 $kat = $dane['deviceCategory'] ?? 'Inne';

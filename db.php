@@ -49,4 +49,10 @@ if ($currentPage !== 'login.php' && !isset($_SESSION['zalogowany'])) {
     header("Location: login.php");
     exit;
 }
+// --- Globalna funkcja filtrująca XSS ---
+if (!function_exists('e')) {
+    function e($tekst) {
+        return htmlspecialchars((string)$tekst, ENT_QUOTES, 'UTF-8');
+    }
+}
 ?>

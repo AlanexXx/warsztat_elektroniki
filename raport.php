@@ -20,7 +20,8 @@ try {
     $wynikiTestow = $stmt_testy->fetchAll(PDO::FETCH_KEY_PAIR);
 
 } catch(PDOException $e) {
-    die("Błąd bazy danych: " . $e->getMessage());
+    error_log("Błąd bazy danych (raport.php): " . $e->getMessage());
+    die("Wystąpił wewnętrzny błąd komunikacji z bazą danych.");
 }
 
 if (!isset($kategorieTestow) || !is_array($kategorieTestow)) {
